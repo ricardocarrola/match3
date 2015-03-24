@@ -1,6 +1,6 @@
 <style>
 body{	
-		  background-size: cover !important;
+  background-size: cover !important;
 }
 	.highscore{
 		  position: absolute;
@@ -19,9 +19,9 @@ body{
 	
 		margin-right: 10px;
 		margin-top: 5%;
-		width:10%;
-		height:1320px;
-		color:#ffffff;
+		width:300px;
+		
+		color:#000000;
 		font-size:100px;
 	}
 	.actual{
@@ -43,6 +43,7 @@ body{
 		position:relative;		
 		background-size:cover !important;
 		border-radius:20px;
+		max-width:1024px;
 		padding:30px;
 			background:url("img/background.png");
 	}
@@ -53,8 +54,8 @@ body{
 	 }
 	 .column{
 		float:left;
-		width:160px;		
-		height:160px;	
+		width:60px;		
+		height:60px;	
 	 }
 	img{
 		width: 99%;

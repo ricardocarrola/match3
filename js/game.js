@@ -25,8 +25,8 @@
 		this.level = new Level(LevelSettings);
 		//two dimensional board
 		this.boardPieces= [[]];
-		this.width			 	 = (!Config.size) ?  '10' : Config.size;
-		this.height			 = (!Config.height) ?  '10' : Config.height;
+		this.width			 	 = (!Config.size) ?  '7' : Config.size;
+		this.height			 = (!Config.height) ?  '7' : Config.height;
 		this.blockedPos   = (!Config.blockedPositions) ?  [] : Config.blockedPositions;
 		this.score		= 0;
 		this.highScore	= 0;
