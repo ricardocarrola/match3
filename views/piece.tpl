@@ -1,0 +1,1 @@
+ <img src='{{{piece.image}}}' id='{{id}}' onclick="">
