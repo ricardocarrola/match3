@@ -1,83 +1,24 @@
-<style>
-body{	
-  background-size: cover !important;
-}
-	.highscore{
-		  position: absolute;
-	  width: 100%;
-	  bottom: 20%;	  
-	  color: orange;
-	  font-size: 300px;
-	  text-align: center;
-	}
-	.highscoreBoard{
-		
-		float:left;
-		border-radius:20px;
-		padding:10px;
-		margin-left:10%;
-	
-		margin-right: 10px;
-		margin-top: 5%;
-		width:300px;
-		
-		color:#000000;
-		font-size:100px;
-	}
-	.actual{
-	    margin: 0 auto;
-  width: 368px;
-  text-align: center;
-  }
-	.space{	
-		
-		float: left;
-		margin-right: 10px;
-		margin-top: 5%;
-		max-height:1000px;
-	}
-		
-	
-	.board{
-		float:left;
-		position:relative;		
-		background-size:cover !important;
-		border-radius:20px;
-		max-width:1024px;
-		padding:30px;
-			background:url("img/background.png");
-	}
-	 .row{
-		float:left;
-		clear:left;
-		
-	 }
-	 .column{
-		float:left;
-		width:60px;		
-		height:60px;	
-	 }
-	img{
-		width: 99%;
-		height: 99%;
-		margin: auto;
-		cursor: pointer;
-		margin-top: 3px;
-	}
-</style>
-<div class='highscoreBoard'>
-	<div class='actual'><span id='scoreme'></span></div>
-</div>
-<div class='space'>
-	<div class='board'>
-		{{#.}}
-		<div class='row'>
-			{{#.}}			
-			<div class='column' id='p_{{id}}' >
-				<img src='{{piece.image}}' id='{{id}}' >
+<div id='{{name}}' style='  float: left;position:relative;
+  max-width: 491px;
+  border: 5px solid #FFFFFF;
+  border-radius: 10px;
+  padding: 16px;
+  margin-right: 7px;'>		
+	<div class='levelname'  id='{{name}}_levelname'>{{level}}</div>
+	<div class='player' id='{{name}}_player'><img class='profilepic' src='http://graph.facebook.com/{{player.fbid}}/picture?type=square'>{{player.name}}</div>	
+	<div class='actual' id='{{name}}_scoreme'>SCORE:0</div>			
+	<div class='space'>
+		<div class='board'>
+			{{#board}}
+			<div class='row'>
+				{{#.}}			
+				<div class='column' id='p_{{name}}_{{id}}' >
+					<img src='{{piece.image}}' id='{{name}}_{{id}}' >
+				</div>
+				{{/.}}
 			</div>
-			{{/.}}
+			{{/board}}
 		</div>
-		{{/.}}
 	</div>
+	<div class='moves'  id='{{name}}_moves'>x 0</div>	
 </div>

@@ -1,1 +1,1 @@
- <img src='{{{piece.image}}}' id='{{id}}' onclick="">
+ <img src='{{{piece.image}}}' id='{{name}}_{{id}}' onclick="">

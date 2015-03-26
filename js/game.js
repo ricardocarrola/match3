@@ -9,11 +9,13 @@
 							 speechSynthesis.speak(u); 
 			}catch(e){}
 	}
+	
 	function Level(Settings){
 			var level={};
+			
 			for(var i=0;i<Settings.levels.length;i++){
 				if (Settings.levels[i].id==Settings.startOnLevel){
-					level = Settings.levels[i];
+					this.level = Settings.levels[i];
 				}
 			}
 			setTimeout(function(){
@@ -26,28 +28,35 @@
 	}
 	function Board(Config,Settings,LevelSettings){
 		this.level = new Level(LevelSettings);
-		//two dimensional board
+		
 		this.what =[];
+		
+		this.view = "";
+		
 		this.clearLine=function(line){
+			
 			for(var column=0;column<this.width;column++){
-				this.boardPieces[line][column].piece={};
-				console.log("exploding %d,%d",line,column);
-				removePiece(this.boardPieces[line][column]);
-				
-				//$(document).trigger("removePiece",[]);
+				this.boardPieces[line][column].piece={};				
+				this.view.removePiece(this.boardPieces[line][column]);							
+			}
+		}
+		this.clearColumn=function(column){
+			for(var line=0;line<this.height;line++){
+				this.boardPieces[line][column].piece={};				
+				this.view.removePiece(this.boardPieces[line][column]);								
 			}
 		}
 		this.bombAll=function(){
 			var type= this.boardPieces[this.what[0][0]][this.what[0][1]].piece.color!='-' ? this.boardPieces[this.what[0][0]][this.what[0][1]].piece.color : this.boardPieces[this.what[1][0]][this.what[1][1]].piece.color;
 			this.boardPieces[this.what[0][0]][this.what[0][1]].piece =  {};	
 			this.boardPieces[this.what[1][0]][this.what[1][1]].piece =  {};	
-			removePiece(this.boardPieces[this.what[0][0]][this.what[0][1]]);	
-			removePiece(this.boardPieces[this.what[1][0]][this.what[1][1]]);	
+			this.view.removePiece(this.boardPieces[this.what[0][0]][this.what[0][1]]);	
+			this.view.removePiece(this.boardPieces[this.what[1][0]][this.what[1][1]]);	
 			for(var i=0;i<this.width;i++){
 				for(var j=0;j<this.height;j++){
 						if (this.boardPieces[i][j].piece.color==type){
 							this.boardPieces[i][j].piece =  {};	
-							removePiece(this.boardPieces[i][j]);									
+							this.view.removePiece(this.boardPieces[i][j]);									
 						}																											
 				}
 			}
@@ -56,19 +65,12 @@
 						for(var j=0;j<b.height;j++)
 								if (!b.boardPieces[i][j].piece.color){
 									b.boardPieces[i][j].piece =  new Piece(config.pieces);	
-									addPiece(b.boardPieces[i][j]);	
+									this.view.addPiece(b.boardPieces[i][j]);	
 								}									
 						},100);			
 		}
-		this.clearColumn=function(column){
-			for(var line=0;line<this.height;line++){
-				this.boardPieces[line][column].piece={};
-				
-				removePiece(this.boardPieces[line][column]);
-				
-				//$(document).trigger("removePiece",[]);
-			}
-		}
+	
+		
 		this.boardPieces= [[]];
 		this.width			 	 = (!Config.size) ?  '7' : Config.size;
 		this.height			 = (!Config.height) ?  '7' : Config.height;
@@ -97,8 +99,7 @@
 		this.specialPowersInvoke=function(piece,i,j){
 			
 			if (piece.powers){
-				piece.powers(i,j);
-				document.getElementById("tasty").play();	
+				piece.powers(i,j,this);				
 			}
 				
 			
@@ -114,8 +115,8 @@
 			if (move){					
 						var tmp = this.boardPieces[p1[0]][p1[1]].piece;						
 						this.boardPieces[p1[0]][p1[1]].piece = this.boardPieces[p2[0]][p2[1]].piece;
-						this.boardPieces[p2[0]][p2[1]].piece = tmp;												
-						$(document).trigger("transferPiece",[{"from":this.boardPieces[p1[0]][p1[1]],"to":this.boardPieces[p2[0]][p2[1]]}]);
+						this.boardPieces[p2[0]][p2[1]].piece = tmp;		
+						this.view.transferPiece({"from":this.boardPieces[p1[0]][p1[1]],"to":this.boardPieces[p2[0]][p2[1]]})												
 						this.checkPattern(p1,p2);
 						if (this.boardPieces[p1[0]][p1[1]].piece.color=="-")
 							if (this.boardPieces[p1[0]][p1[1]].piece.powers)
@@ -131,15 +132,15 @@
 			for(var i=0;i<this.width;i++){
 				for(var j=0;j<this.height;j++){
 						this.boardPieces[i][j].piece =  new Piece(config.pieces);
-						closePiece(this.boardPieces[i][j]);																									
+						this.view.closePiece(this.boardPieces[i][j]);																									
 				}
 			}
 			setTimeout(function(){
 				for(var i=0;i<b.width;i++)
 				for(var j=0;j<b.height;j++)
-					addPiece(b.boardPieces[i][j]);																				
+					this.view.addPiece(b.boardPieces[i][j]);																				
 			},100);
-			$(document).trigger("newScore",["Shuffleling"]);
+			this.view.newScore("Shuffleling");
 		}
 		
 		this.checkPattern=function(p1,p2){			
@@ -161,13 +162,13 @@
 															//removed all the pieces but if a specified pattern is met we need special pieces to be put here!
 															this.specialPowersInvoke(this.boardPieces[what[k].i][what[k].j].piece,what[k].i,what[k].j);
 															this.boardPieces[what[k].i][what[k].j]={"disabled":false,"piece":{},"i":what[k].i,"j":what[k].j,"id":what[k].i+"_"+what[k].j};																														
-															removePiece(what[k]);
+															this.view.removePiece(what[k]);
 															howMany.push(clean);
 															perType.push(was);
 													}
 													if (clean==4){														
 														this.boardPieces[what[3].i][what[3].j]={"disabled":false,"piece":new Piece(config.pieces,was),"i":what[3].i,"j":what[3].j,"id":what[3].i+"_"+what[3].j};														
-														$(document).trigger("addPiece",[this.boardPieces[what[3].i][what[3].j]]);
+														this.view.addPiece(this.boardPieces[what[3].i][what[3].j]);
 													}
 													
 											}
@@ -186,14 +187,14 @@
 										for(var k=0;k<what.length;k++){					
 												this.specialPowersInvoke(this.boardPieces[what[k].i][what[k].j].piece,what[k].i,what[k].j);										
 												this.boardPieces[what[k].i][what[k].j]={"disabled":false,"piece":{},"i":what[k].i,"j":what[k].j,"id":what[k].i+"_"+what[k].j};
-												removePiece(what[k]);
+												this.view.removePiece(what[k]);
 												howMany.push(clean);
 												perType.push(was);
 										}
 										if (clean==4){
 														
 														this.boardPieces[what[3].i][what[3].j]={"disabled":false,"piece":new Piece(config.pieces,was),"i":what[3].i,"j":what[3].j,"id":what[3].i+"_"+what[3].j};
-														$(document).trigger("addPiece",[this.boardPieces[what[3].i][what[3].j]]);
+														this.view.addPiece(this.boardPieces[what[3].i][what[3].j]);
 													}
 										what = [];
 								}								
@@ -213,7 +214,7 @@
 													for(var k=0;k<what.length;k++){	
 															this.specialPowersInvoke(this.boardPieces[what[k].i][what[k].j].piece,what[k].i,what[k].j);																							
 															this.boardPieces[what[k].i][what[k].j]={"disabled":false,"piece":{},"i":what[k].i,"j":what[k].j,"id":what[k].i+"_"+what[k].j};
-															removePiece(what[k]);
+															this.view.removePiece(what[k]);
 															howMany.push(clean);
 															perType.push(was);
 													}
@@ -222,7 +223,7 @@
 											if (clean==4){
 													
 														this.boardPieces[what[3].i][what[3].j]={"disabled":false,"piece":new Piece(config.pieces,was),"i":what[3].i,"j":what[3].j,"id":what[3].i+"_"+what[3].j};
-														$(document).trigger("addPiece",[this.boardPieces[what[3].i][what[3].j]]);
+														this.view.addPiece(this.boardPieces[what[3].i][what[3].j]);
 													}
 											was= this.boardPieces[j][i].piece.color;
 											what = [];
@@ -239,14 +240,13 @@
 										for(var k=0;k<what.length;k++){			
 												this.specialPowersInvoke(this.boardPieces[what[k].i][what[k].j].piece,what[k].i,what[k].j);																				
 												this.boardPieces[what[k].i][what[k].j]={"disabled":false,"piece":{},"i":what[k].i,"j":what[k].j,"id":what[k].i+"_"+what[k].j};
-												removePiece(what[k]);
+												this.view.removePiece(what[k]);
 												howMany.push(clean);
 												perType.push(was);
 										}
-										if (clean==4){
-													
+										if (clean==4){													
 														this.boardPieces[what[3].i][what[3].j]={"disabled":false,"piece":new Piece(config.pieces,was),"i":what[3].i,"j":what[3].j,"id":what[3].i+"_"+what[3].j};
-														$(document).trigger("addPiece",[this.boardPieces[what[3].i][what[3].j]]);
+														this.view.addPiece(this.boardPieces[what[3].i][what[3].j]);
 													}
 										what = [];
 								}								
@@ -274,7 +274,7 @@
 									//copy this one 																																										
 									this.boardPieces[i][j].piece= this.boardPieces[k][j].piece;
 									this.boardPieces[k][j].piece = {};
-									$(document).trigger("movePiece",[{"from":this.boardPieces[k][j],"to":this.boardPieces[i][j]}]);
+									this.view.movePiece({"from":this.boardPieces[k][j],"to":this.boardPieces[i][j]});
 									break;
 								}
 							}
@@ -292,18 +292,16 @@
 					if (!this.boardPieces[i][j].piece.color){
 							console.log("adding new piece to %d,%d",i,j);
 							this.boardPieces[i][j] = {"disabled":false,"piece":new Piece(Settings.pieces),"i":i,"j":j,"id":i+"_"+j};
-							$(document).trigger("addPiece",[this.boardPieces[i][j]]);
+							this.view.addPiece(this.boardPieces[i][j]);
 							newpiece=true;
 					}
 				}
 			}
 			return newpiece;
 		}
-		this.removePieces=function(piecesArray){
-			
-		}
+	
 		this.doScore=function(howMany,perType){
-			this.moves++;
+			//this.moves++;
 			sc = 0;
 		
 			
@@ -329,13 +327,13 @@
 				
 			if ($.inArray(4,howMany)!=-1){
 				document.getElementById("sweet").play();	
-				$(document).trigger("newScore",["sweet"]);
+				this.view.newScore("sweet");
 			}
 			if ($.inArray(3,howMany)!=-1){
 				document.getElementById("square_removed2").play();	
-				$(document).trigger("newScore",[sc]);
+				this.view.newScore(sc);
 			}		
-				
+			this.view.scoreIt();
 			/*else	
 				if ($.inArray(3,howMany)!=-1)
 					document.getElementById("delicious").play();				*/
@@ -376,3 +374,118 @@
 		
 	}
 	
+	/*
+		Class responsible for showing things up
+	*/
+	function View(nameOfBoard,clickable,boardNew,playerObj){
+	
+	this.clicks = [];
+	this.board = boardNew;
+	this.name = nameOfBoard;
+	this.player = playerObj;
+	this.click   = clickable;
+	this.pieceTemplate = "";
+	boardNew.view = this;
+	
+	var table = this;
+		$.ajax(
+			{
+				"url":'views/piece.tpl',
+				"async":false,
+				"success":function(template) {table.pieceTemplate=template;}
+			});
+		$.ajax(
+		{
+			"url":'views/board.tpl',
+			"async"	:false,
+			"success":function(template) {
+			var rendered = Mustache.render(template, {"name":table.name,"board":table.board.getBoard(),"player":table.player,"level":table.board.level.level.name});    
+			
+			$('#game').append(rendered);
+			
+			if (table.click)
+				$("#"+table.name+" .space .board").click(function(a){
+
+					var c = a.target.id.replace(table.name+"_","").split("_");		
+
+
+					if (table.clicks.length>0){
+						if (table.clicks.length==2)
+							if (a.target.id!=table.clicks[0].join("_") && a.target.id!=table.clicks[1].join("_"))
+								table.clicks.push(c);	
+						if (table.clicks.length==1)
+							if (a.target.id!=table.clicks[0].join("_"))
+								table.clicks.push(c);	
+					}else
+							table.clicks.push(c);	
+					
+					if (table.clicks.length==2){		
+						var p1=table.clicks[0];
+						var p2=table.clicks[1];			
+						table.clicks=[];
+						table.board.what=[p1,p2];					
+						if(table.board.swapPieces(p1,p2))
+							table.board.moves++;
+						table.board.view.moveIt();		
+						sendMove(table.board.view,p1,p2)	;					
+					}
+				});
+		}}
+		);
+		
+	this.moveIt=function(){
+		$("#"+this.name+"_"+"moves").html("x "+this.board.moves);	
+	}
+	this.scoreIt=function(){
+		$("#"+this.name+"_"+"scoreme").html("SCORE: "+this.board.score);	
+	}
+	this.removePiece=function(a){
+			
+			$("#"+this.name+"_"+a.i+"_"+a.j).hide( "explode", {direction: "down"},100,function(){$(this).remove();} )	
+			$("#p_"+this.name+"_"+a.i+"_"+a.j).html("<img src='img/explosion.png'>");
+			
+	}
+	
+	this.addPiece=function(piece){
+			piece.name = this.name;
+			var html = Mustache.render(this.pieceTemplate, piece);		
+			console.log("Adding new piece to board (%s) : html :(%s)",this.name,html);
+			$("#p_"+this.name+"_"+piece.id).hide().html(html);
+			$("#p_"+this.name+"_"+piece.id).show( "drop", {direction: "up"}, 300 )		
+	}
+	
+	this.closePiece=function(a){		
+			
+			$("#"+this.name+"_"+a.i+"_"+a.j).hide( "explode", {direction: "down"},100,function(){$(this).remove();} )	
+			$("#p_"+this.name+"_"+a.i+"_"+a.j).html("<img src='img/closed.png'>");		
+	}
+	
+	this.movePiece=function(move){
+		var html = $("#p_"+this.name+"_"+move.from.i+"_"+move.from.j).html();		
+		console.log("moving from %d,%d => %d,%d html:(%s,%s)",move.from.i+1,move.from.j+1,move.to.i+1,move.to.j+1,html,"#p_"+this.name+"_"+move.from.i+"_"+move.from.j);				
+		$("#p_"+this.name+"_"+move.from.i+"_"+move.from.j).html("");
+		html=html.replace(move.from.i+'_'+move.from.j,move.to.i+'_'+move.to.j);				
+		$("#p_"+this.name+"_"+move.to.i+"_"+move.to.j).html(html).show();	
+	}
+	
+	this.transferPiece=function(move){
+			var html = $("#p_"+this.name+"_"+move.from.i+"_"+move.from.j).html();				
+			var html2 = $("#p_"+this.name+"_"+move.to.i+"_"+move.to.j).html();						
+			html2=html2.replace(move.to.i+'_'+move.to.j,move.from.i+'_'+move.from.j);				
+			$("#p_"+this.name+"_"+move.from.i+"_"+move.from.j).html(html2);							
+			html=html.replace(move.from.i+'_'+move.from.j,move.to.i+'_'+move.to.j);				
+			$("#p_"+this.name+"_"+move.to.i+"_"+move.to.j).html(html);	
+			$("#"+this.name+"_"+move.to.i+"_"+move.to.j).show();				
+	}
+	this.newScore=function(score){
+		$('<div/>', { class:"highscore", text:score }).appendTo('#'+this.name+'.board').hide("puff",{},1000,function(){$(this).remove();});;			
+	}
+	
+	
+}
+
+function sendMove(view,p1,p2){
+	console.log(view);
+	console.log({"game":"1","user":view.player.id,"p1":p1,"p2":p2});
+	send(JSON.stringify({"game":"1","user":view.player.id,"p1":p1,"p2":p2,"tablename":view.name}));
+}
