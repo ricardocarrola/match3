@@ -26,7 +26,7 @@
 			$("body").css("background","url('"+(level.background ? level.background : 'img/back_1.png')+"')");
 			$(".board").css("background","url('"+(level.board ? level.board : 'img/background.png')+"')");
 	}
-	function Board(Config,Settings,LevelSettings){
+	function Board(Config,Settings,LevelSettings,BoardInit){
 		this.level = new Level(LevelSettings);
 		
 		this.what =[];
@@ -84,6 +84,9 @@
 				this.boardPieces[this.blockedPos[i][j]] = {"disabled":true};
 												
 		//Start with empty board
+		//console.log("BOARD CONFIG");
+		//console.log(BoardInit);
+		if (!BoardInit)
 		for(var i=0;i<this.width;i++)
 			for(var j=0;j<this.height;j++){
 					if (!this.boardPieces[i])
@@ -91,7 +94,11 @@
 					if (!this.boardPieces[i][j])
 						this.boardPieces[i][j] = {"disabled":false,"piece":new Piece(Settings.pieces),"i":i,"j":j,"id":i+"_"+j};
 			}			
-		
+		if(BoardInit){
+				this.boardPieces=BoardInit;
+				//console.log(this.boardPieces);
+		}
+			
 		
 		this.getBoard=function(){
 				return this.boardPieces;
@@ -290,7 +297,7 @@
 			for(var j=0;j<this.height;j++){
 				for(var i=this.width-1;i>=0;i--){
 					if (!this.boardPieces[i][j].piece.color){
-							console.log("adding new piece to %d,%d",i,j);
+							//console.log("adding new piece to %d,%d",i,j);
 							this.boardPieces[i][j] = {"disabled":false,"piece":new Piece(Settings.pieces),"i":i,"j":j,"id":i+"_"+j};
 							this.view.addPiece(this.boardPieces[i][j]);
 							newpiece=true;
@@ -323,7 +330,7 @@
 				this.perTypeMoves[perType[i]]+=1;
 			}
 			
-			console.log(this.perTypeMoves);
+			//console.log(this.perTypeMoves);
 				
 			if ($.inArray(4,howMany)!=-1){
 				document.getElementById("sweet").play();	
@@ -421,7 +428,8 @@
 					
 					if (table.clicks.length==2){		
 						var p1=table.clicks[0];
-						var p2=table.clicks[1];			
+						var p2=table.clicks[1];		
+
 						table.clicks=[];
 						table.board.what=[p1,p2];					
 						if(table.board.swapPieces(p1,p2))
@@ -449,7 +457,7 @@
 	this.addPiece=function(piece){
 			piece.name = this.name;
 			var html = Mustache.render(this.pieceTemplate, piece);		
-			console.log("Adding new piece to board (%s) : html :(%s)",this.name,html);
+			//console.log("Adding new piece to board (%s) : html :(%s)",this.name,html);
 			$("#p_"+this.name+"_"+piece.id).hide().html(html);
 			$("#p_"+this.name+"_"+piece.id).show( "drop", {direction: "up"}, 300 )		
 	}
@@ -462,7 +470,7 @@
 	
 	this.movePiece=function(move){
 		var html = $("#p_"+this.name+"_"+move.from.i+"_"+move.from.j).html();		
-		console.log("moving from %d,%d => %d,%d html:(%s,%s)",move.from.i+1,move.from.j+1,move.to.i+1,move.to.j+1,html,"#p_"+this.name+"_"+move.from.i+"_"+move.from.j);				
+		//console.log("moving from %d,%d => %d,%d html:(%s,%s)",move.from.i+1,move.from.j+1,move.to.i+1,move.to.j+1,html,"#p_"+this.name+"_"+move.from.i+"_"+move.from.j);				
 		$("#p_"+this.name+"_"+move.from.i+"_"+move.from.j).html("");
 		html=html.replace(move.from.i+'_'+move.from.j,move.to.i+'_'+move.to.j);				
 		$("#p_"+this.name+"_"+move.to.i+"_"+move.to.j).html(html).show();	
@@ -484,8 +492,3 @@
 	
 }
 
-function sendMove(view,p1,p2){
-	console.log(view);
-	console.log({"game":"1","user":view.player.id,"p1":p1,"p2":p2});
-	send(JSON.stringify({"game":"1","user":view.player.id,"p1":p1,"p2":p2,"tablename":view.name}));
-}

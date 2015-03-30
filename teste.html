@@ -1,0 +1,351 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+	<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+	<title>FullCalendar - JavaScript Event Calendar (jQuery plugin)</title>
+
+			<meta name='description' content='Open source JavaScript jQuery plugin for a full-sized, drag &amp; drop event calendar'>
+	<meta name='keywords' content='calendar, JavaScript, jQuery, events, drag and drop'>
+	<meta name='author' content='Adam Shaw'>
+
+	<link rel="apple-touch-icon" sizes="57x57" href="http://fullcalendar.io/apple-touch-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="http://fullcalendar.io/apple-touch-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="http://fullcalendar.io/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="http://fullcalendar.io/apple-touch-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="http://fullcalendar.io/apple-touch-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="http://fullcalendar.io/apple-touch-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="http://fullcalendar.io/apple-touch-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="http://fullcalendar.io/apple-touch-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="http://fullcalendar.io/apple-touch-icon-180x180.png">
+	<link rel="icon" type="image/png" href="http://fullcalendar.io/favicon-192x192.png" sizes="192x192">
+	<link rel="icon" type="image/png" href="http://fullcalendar.io/favicon-160x160.png" sizes="160x160">
+	<link rel="icon" type="image/png" href="http://fullcalendar.io/favicon-96x96.png" sizes="96x96">
+	<link rel="icon" type="image/png" href="http://fullcalendar.io/favicon-16x16.png" sizes="16x16">
+	<link rel="icon" type="image/png" href="http://fullcalendar.io/favicon-32x32.png" sizes="32x32">
+	<meta name="msapplication-TileColor" content="#2b5797">
+	<meta name="msapplication-TileImage" content="/mstile-144x144.png">
+
+				<link href='http://fonts.googleapis.com/css?family=Lato:100,300,400' rel='stylesheet' />
+		<link href='http://fullcalendar.io/css/base.css?2.3.1' rel='stylesheet' />
+		<link rel='stylesheet' href='http://fullcalendar.io/js/fullcalendar-2.3.1/fullcalendar.min.css' />
+
+			<script src='//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js'></script>
+	<!--[if lt IE 9]>
+    <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js'></script>
+<![endif]-->
+<!--[if gte IE 9]><!-->
+    <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+<!--<![endif]-->	<script src='js/fullcalendar.js'></script>
+	
+
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-3534877-8', 'auto');
+	ga('send', 'pageview');
+</script>
+</head>
+<body id='home-page'>
+	<div id='calendar'></div>
+	<script>
+	$(function() {
+	$('#calendar').fullCalendar({
+			header: {
+				left: '',
+				center: '',
+				right: ''
+			}	,
+			allDaySlot:false,
+
+			axisFormat: 'H:mm',
+			editable: true,
+			minTime : 9, /*Configurable for all customers?*/
+			maxTime : 19,
+			slotMinutes : 30,
+
+			slotEventOverlap:false,
+			/*events: [
+				{
+					title: '<font style=\'font-size:10px;color:#404040;\'><div style=\'float:left;\'><b>@ Ana Pereira</b><br />Corte de Cabelo</div><div class=\'icon_small\'></div><img style=\'float:right;margin-top:6px;\' src=\'http://www.carrola.com/beauti/domains/pt-PT/img/sms.png\' title=\'\'></font>',
+					start: new Date(y, m, d, 9, 15),
+					end: new Date(y, m, d, 9, 45),
+					backgroundColor: '#96eae2',
+					borderColor:'#68c1b8',
+					durationEditable:true,
+					allDay: false
+				},{
+					title: '<font style=\'font-size:10px,color:#404040;\'><div style=\'float:left;\'><b>@ Ana Pereira</b><br />Unhas</div><div class=\'icon_small\'></div><img style=\'float:right;margin-top:6px;\' src=\'http://www.beauti.pt/resources/img/sms.png\' title=\'\'></font>',
+					start: new Date(y, m, d, 9, 15),
+					end: new Date(y, m, d, 10, 30),
+					backgroundColor: '#96eae2',
+					borderColor:'#68c1b8',
+					durationEditable:true,
+					allDay: false
+				}
+				],	*/
+				 events: function(start, end, callback) {
+				 		
+						$.ajax({
+							"url": "http://www.beauti.pt/p.php?url=http://api.beauti.pt/1/marcacoes/getMarcacoes.json?token=4cc9c622eab896f5f44230d34b742b6e5506e5da460880.22940186",
+							dataType: 'json',
+							type: "POST",
+							data: {
+								// our hypothetical feed requires UNIX timestamps
+								start: Math.round(start.getTime() / 1000),
+								end: Math.round(end.getTime() / 1000),
+								id: $("#profissionaisfiltro").val(),
+								multiview:$("#p_list_all_ids").is(":selected")
+
+							},
+							success: function(doc) {
+								
+								var events = [];
+
+
+
+								$.each(doc.getMarcacoes,function(i,val) {
+									events.push({
+										title: val.titulo,
+										nao_aceita : val.nao_aceita,
+										cliente_id : val.id_cliente,
+										id: val.id,
+										telefone_cliente:val.telefone_cliente,
+										email_cliente:val.email_cliente,
+										criou_id: val.criou_id,
+										criou_nome: val.criou_nome,
+										nome_profissional: val.nome_profissional,
+										data3: val.data3,
+										nome_servico:val.nome_servico,
+										desconto : val.desconto,
+										duracao  : val.duracao,
+										servico_id: val.id_servico,
+										preco   : val.preco,
+										criou_em: val.criou_em,
+										lote: val.lote,
+										last_action: val.last_action,
+										confirmado_cliente_em: val.confirmada_cliente_em,
+										confirmada_nome : val.confirmada_nome,
+										confirmada_em : val.confirmada_em,
+										marcapai: val.marca_pai,
+										agente_id: val.agente_id,
+										cliente_id: val.id_cliente,
+										nome_cliente: val.nome_cliente,
+										nome_cliente_full: val.nome_cliente_full,
+										notas : val.notas,
+										recorrente:val.recorrente,
+										recorrente_ate : new Date(val.recorrente_ate),
+										horafim: val.hora_fim,
+										horainicio:val.hora_inicio,
+										passado: val.passado,
+										datafim : val.data_fim,
+										cupao: val.cupao,
+										datainicio: val.data_inicio,
+										recorrente_tipo: val.recorrente_tipo,
+										estado_marcacao: val.estado_marcacao,
+										estado_pagamento: val.estado_pagamento,
+										tipo_marcacao:val.tipo_marcacao,
+										start: new Date(val.data_inicio2),
+										end: new Date(val.data_fim2),
+										durationEditable:true,
+											eventStartEditable:true,
+											editable :true,
+
+										backgroundColor:colaboradorColor[val.agente_id],
+										borderColor:colors[val.estado_marcacao],
+										allDay: false
+									});
+
+								});
+								allEvents = events;
+
+//alert( $("#p_list_all_ids").is(":selected"));
+//checkHorarioDefinido("no_refresh_always");
+
+								try{
+
+								callback(events);
+								}catch(e){}
+							}
+						});
+					},
+			firstDay : 1,
+			dayNamesShort: ['Dom', '2.\u00AA', '3.\u00AA', '4.\u00AA', '5.\u00AA', '6.\u00AA', 'Sab'],
+			monthNames :['January', 'February', 'March', 'April', 'May', 'June', 'July','August', 'September', 'Outubro', 'November', 'December'],
+			eventRender: function(event, element) {
+
+
+				element.find('.fc-event-time').html(" ");
+				element.find('.fc-event-title').html(event.title);
+				element.find('.fc-event-inner').parent().css("background",event.backgroundColor);
+				element.find('.fc-event-inner').parent().css("borderColor",event.borderColor);
+				element.find('.fc-event-inner').css("color",getContrastYIQ(event.backgroundColor)); //contrast text
+
+//reload tooltip:
+var online=event.tipo_marcacao==1?"@":"";
+$("#slot_agenda_"+event.id).attr("title",online+" "+event.nome_cliente+" : "+event.nome_servico+" ("+event._start.format("hh:mm")+" até "+event._end.format("hh:mm")+" )");
+
+$("#slot_agenda_"+event.id+" .horas").html(event._start.format("hh:mm")+" - "+event._end.format("hh:mm"));
+//reload icons
+
+
+if(jQuery("#slot_agenda_"+event.id+" .pago").length==0 && event.estado_marcacao!=4){
+	jQuery("#slot_agenda_"+event.id).prepend("<div class='pago'></div>");
+}
+
+
+if(event._start < new Date() ){
+	event.passado=1;
+	if(event.estado_pagamento==0){jQuery("#slot_agenda_"+event.id+" .pago").addClass("p0").removeClass("p1");}else{jQuery("#slot_agenda_"+event.id+" .pago").addClass("p1").removeClass("p0");}
+}else{
+	jQuery("#slot_agenda_"+event.id+" .pago").removeClass("p0").removeClass("p1");
+}
+
+
+
+				if(event.estado_marcacao!=8){element.find('.fc-event-inner').parent().show();}
+				//if(event.estado_marcacao==4){element.find('.fc-event-inner').parent().css("border-width","3px");}else{element.find('.fc-event-inner').parent().css("border-width","10px");}
+element.find('.fc-event-inner').parent().css("border-width","5px");
+
+			},
+			eventDrop: function(event,dayDelta,minuteDelta,allDay,revertFunc) {
+
+
+				/*Need to change this! To have proper treatment*/
+
+				var data = event._start.format("yyyy-MM-dd h:mm:ss");
+				var data2 = event._end.format("yyyy-MM-dd h:mm:ss");
+				var id = event.id;
+
+				var step1 = [];
+				token="4cc9c622eab896f5f44230d34b742b6e5506e5da460880.22940186";
+				step1.push({"name":"token","value":token});
+				step1.push({"name":"data1","value":escape(data)});
+				step1.push({"name":"data2","value":escape(data2)});
+				step1.push({"name":"id","value":escape(id)});
+
+				step1_cache = step1;
+			var found = 0;			selectedId = id;
+			$.each(allEvents,function(i,val){
+				if (val.id == id){
+					found = i;
+
+					allEvents[i].datainicio=event._start.format("yyyy-MM-dd h:mm:ss");
+					allEvents[i].datafim=event._end.format("yyyy-MM-dd h:mm:ss");
+					allEvents[i].horainicio=event._start.format("hh:mm");
+					allEvents[i].horafim=event._end.format("hh:mm");
+					allEvents[i].passado=(event._start > new Date() )?0:1;
+
+					//allEvents[i].borderColor=colors[val.estado_marcacao];
+				}
+			});
+
+			//$("#profissionalmarca").val(allEvents[found].agente_id);
+			//TODO: verificar se esta no passado, se estiver sem janela
+
+			ccc_step1 = step1;
+			if ( (event._start > new Date() ) /*&& allEvents[found].recorrente=='0'*/ && allEvents[found].estado_marcacao!='9'
+			&& allEvents[found].estado_marcacao!='3' && allEvents[found].estado_marcacao!='4' && allEvents[found].estado_marcacao!='4'){
+				notifyCustomer=1;
+				wasChanged=true;
+				showConfirmation("Alteração de Marcação",
+				"","Pedir confirmação ao cliente",
+				"Não pedir confirmação ao cliente",
+				"Cancelar alterações","save_alteracao","jaConfirmado2","refreshCalendar");
+				}
+			else{
+				wasChanged=false;
+		if(allEvents[found].estado_marcacao!='9'){save_alteracao();}else{ revertFunc(); alert("Não é possível alterar marcações de serviços com pagamento já efetuado. Obrigado.");}
+
+			}
+
+
+
+
+			},
+			viewDisplay: function(view) {
+
+				var h;
+				if (view.name == "month") {
+					h = NaN;
+				}
+				else {
+					h = 2500;  // high enough to avoid scrollbars
+				}
+				$('#calendar').fullCalendar('option', 'contentHeight', h);
+				changeDate();
+				formatHeader();
+				if (firstRun){
+					setTimeout("checkHorarioDefinido()",500);
+					firstRun=false;
+				}
+
+				if (view.name == "agendaDay"){
+					$(".deletetable").remove();
+					var d = new Date(view.visStart);
+					var n = d.getDay();
+
+					if (n==0)
+					 n=6;
+					else
+					 if (n==6)
+						n=0;
+					 else
+					   n=n-1;
+					try{
+						disableTime(0,horario[n].das,horario[n].ate);
+					}catch(ert){}
+				}else
+				if (horario){
+				//disable lunch time
+					for(k=0;k<7;k++){
+					try{
+						disableTime(k,horario[k].das,horario[k].ate);
+						//if (on){
+
+								disableTime(k,minTime,horario[k].open);
+								disableTime(k,horario[k].close,maxTime);
+						//}
+					}catch(ert){}
+					}
+				}
+				try{
+				//$('#calendar').fullCalendar("gotoDate",new Date(Year3,Month3,Day3));
+				//$('#calendar').fullCalendar('gotoDate',currentMeDate.getFullYear(),currentMeDate.getMonth(),currentMeDate.getDate());
+				}catch(e){}
+			},
+			 dayClick: function(date, allDay, jsEvent, view) {
+      /*  if (allDay) {
+            alert('Clicked on the entire day: ' + date);
+        }else{
+            alert('Clicked on the slot: ' + date);
+        }*/
+        //alert('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
+        //alert('Current view: ' + view.name);
+       showMenu(date,"",jsEvent.pageX,jsEvent.pageY);
+    },
+	eventClick: function(calEvent, jsEvent, view) {
+       // alert('Event: ' + calEvent.title);
+      //  alert('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
+     //   alert('View: ' + view.name);
+
+		showMenu(calEvent.start,calEvent,jsEvent.pageX,jsEvent.pageY);
+    },
+			columnFormat : {
+			 week: 'ddd d/M', // Mon 9/7
+			 day: 'dddd d/M'  // Monday 9/7
+			},
+			dayNames: ['Domingo', '2\u00AAFeira', '3\u00AAFeira', '4\u00AAFeira','5\u00AAFeira', '6\u00AAFeira', 'Sabado'],
+		    defaultView: "agendaDay",
+			year: 2015,
+			month: 2,
+			date: 26
+		});
+});
+	</script>
+</body>
+</html>

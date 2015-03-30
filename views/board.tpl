@@ -5,7 +5,7 @@
   padding: 16px;
   margin-right: 7px;'>		
 	<div class='levelname'  id='{{name}}_levelname'>{{level}}</div>
-	<div class='player' id='{{name}}_player'><img class='profilepic' src='http://graph.facebook.com/{{player.fbid}}/picture?type=square'>{{player.name}}</div>	
+	<div class='player' id='{{name}}_player'><img class='profilepic' src='http://graph.facebook.com/{{player.id}}/picture?type=square'>{{player.first_name}}&nbsp;{{player.last_name}} </div>	
 	<div class='actual' id='{{name}}_scoreme'>SCORE:0</div>			
 	<div class='space'>
 		<div class='board'>
